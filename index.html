@@ -1,17 +1,590 @@
 <!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Generador de Balance de Situación PGC - Método DUPRE finanzas" />
-    <title>DUPRE Balance PGC</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>DUPRE Balance PGC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/zustand@4/umd/zustand.production.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased}
+body{min-height:100dvh;font-family:'Inter',Arial,sans-serif;font-size:16px;background:#f4f7fb;color:#172235;transition:background .2s,color .2s}
+[data-theme=dark] body{background:#10161d;color:#e7eef7}
+:focus-visible{outline:2px solid #0f4c81;outline-offset:3px;border-radius:6px}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+table{border-collapse:collapse;width:100%}
+img,svg{display:block;max-width:100%}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px;box-shadow:0 1px 4px rgba(15,76,129,.06)}
+[data-theme=dark] .card{background:#1c2433;border-color:#2d3748}
+.btn{min-height:44px;padding:0 20px;border-radius:14px;font-size:14px;font-weight:600;transition:all .18s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:#0f4c81;color:#fff}
+.btn-primary:hover{background:#1565c0}
+.btn-ghost{border:1px solid #e2e8f0;background:#fff;color:#334155}
+.btn-ghost:hover{background:#f8fafc}
+[data-theme=dark] .btn-ghost{border-color:#2d3748;background:#1c2433;color:#cbd5e1}
+.input,.select{width:100%;height:44px;padding:0 16px;border-radius:14px;border:1px solid #e2e8f0;font-size:14px;font-family:inherit;background:#fff;color:#172235;transition:border .18s}
+.input:focus,.select:focus{outline:none;border-color:#0f4c81;box-shadow:0 0 0 3px rgba(15,76,129,.15)}
+[data-theme=dark] .input,[data-theme=dark] .select{background:#1c2433;border-color:#2d3748;color:#e7eef7}
+.label{display:block;font-size:14px;font-weight:500;color:#475569;margin-bottom:6px}
+[data-theme=dark] .label{color:#94a3b8}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.grid2{grid-template-columns:1fr}}
+.stepper{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:12px;margin-bottom:20px}
+[data-theme=dark] .stepper{background:#1c2433;border-color:#2d3748}
+.step-dot{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.step-done{background:#0f4c81;color:#fff}
+.step-active{background:#0f4c81;color:#fff;box-shadow:0 0 0 4px rgba(15,76,129,.2)}
+.step-pending{background:#f1f5f9;color:#94a3b8}
+[data-theme=dark] .step-pending{background:#2d3748;color:#64748b}
+.step-line{flex:1;height:2px;border-radius:2px}
+.step-line-done{background:#0f4c81}
+.step-line-pending{background:#e2e8f0}
+[data-theme=dark] .step-line-pending{background:#2d3748}
+.step-label{font-size:11px;margin-top:4px;text-align:center;display:none}
+@media(min-width:500px){.step-label{display:block}}
+.step-label-active{color:#0f4c81;font-weight:600}
+.step-label-other{color:#94a3b8}
+.switch-wrap{display:flex;align-items:flex-start;gap:16px;padding:16px;border-radius:16px;border:1px solid #e2e8f0;background:#fff}
+[data-theme=dark] .switch-wrap{background:#1c2433;border-color:#2d3748}
+.switch-btn{position:relative;width:48px;height:26px;border-radius:99px;transition:background .2s;flex-shrink:0;margin-top:2px}
+.switch-btn.on{background:#0f4c81}
+.switch-btn.off{background:#cbd5e1}
+.switch-thumb{position:absolute;top:3px;width:20px;height:20px;background:#fff;border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform .2s}
+.switch-on .switch-thumb{transform:translateX(22px)}
+.switch-off .switch-thumb{transform:translateX(3px)}
+.toast-wrap{position:fixed;top:16px;right:16px;z-index:999;display:flex;flex-direction:column;gap:8px;max-width:340px;pointer-events:none}
+.toast{pointer-events:auto;border:1px solid;border-radius:14px;padding:12px 16px;font-size:14px;font-weight:500;box-shadow:0 4px 16px rgba(0,0,0,.12)}
+.toast-info{background:#eff6ff;border-color:#bfdbfe;color:#1e40af}
+.toast-success{background:#f0fdf4;border-color:#bbf7d0;color:#166534}
+.toast-warn{background:#fffbeb;border-color:#fde68a;color:#92400e}
+.toast-error{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+.badge{display:inline-block;padding:4px 12px;border-radius:99px;font-size:12px;font-weight:700}
+.badge-ok{background:#dcfce7;color:#166534}
+.badge-warn{background:#fef9c3;color:#854d0e}
+[data-theme=dark] .badge-ok{background:rgba(22,163,74,.2);color:#86efac}
+[data-theme=dark] .badge-warn{background:rgba(202,138,4,.2);color:#fde047}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#f8fafc;border:1px solid #e2e8f0;border-radius:16px;padding:14px}
+[data-theme=dark] .kpi{background:#111827;border-color:#2d3748}
+.kpi-label{font-size:12px;color:#94a3b8;margin-bottom:4px}
+.kpi-val{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
+.bal-table th{text-align:left;font-size:12px;font-weight:500;color:#94a3b8;padding:8px 4px;border-bottom:1px solid #e2e8f0}
+[data-theme=dark] .bal-table th{border-color:#2d3748}
+.bal-table td{padding:8px 4px;border-bottom:1px solid #f1f5f9;font-size:13px}
+[data-theme=dark] .bal-table td{border-color:#1e293b}
+.bal-total td{border-top:2px solid #cbd5e1;padding-top:10px;font-weight:800}
+[data-theme=dark] .bal-total td{border-color:#475569}
+.bal-total-val{color:#0f4c81;font-variant-numeric:tabular-nums}
+[data-theme=dark] .bal-total-val{color:#60a5fa}
+.story-text{line-height:1.8;color:#334155;white-space:pre-line;font-size:14px}
+[data-theme=dark] .story-text{color:#94a3b8}
+.pdf-node{display:none;background:#fff;color:#172235;font-family:Arial,Helvetica,sans-serif;width:794px;min-height:1123px;padding:48px;font-size:12px}
+.row-items{display:grid;grid-template-columns:1fr 110px 155px 40px;gap:8px;align-items:end}
+@media(max-width:600px){.row-items{grid-template-columns:1fr 90px;}.row-items .cat-col,.row-items .del-col{display:none}}
+.container{max-width:960px;margin:0 auto;padding:16px 16px 96px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.logo-wrap{display:flex;align-items:center;gap:12px}
+.logo-title{font-size:20px;font-weight:800;color:#172235;line-height:1.2}
+[data-theme=dark] .logo-title{color:#e7eef7}
+.logo-sub{font-size:13px;color:#94a3b8}
+.theme-btn{min-width:44px;min-height:44px;border-radius:14px;border:1px solid #e2e8f0;background:#fff;color:#475569;font-size:18px}
+[data-theme=dark] .theme-btn{border-color:#2d3748;background:#1c2433;color:#94a3b8}
+.section-title{font-size:18px;font-weight:700;color:#172235;margin-bottom:4px}
+[data-theme=dark] .section-title{color:#e7eef7}
+.section-sub{font-size:14px;color:#94a3b8;margin-bottom:20px}
+.nav-row{display:flex;justify-content:space-between;padding-top:8px;margin-top:8px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:4px}
+.hint{font-size:12px;color:#94a3b8;margin-top:2px}
+.dim-pill{background:#eff6ff;border-radius:12px;padding:10px 14px;font-size:14px;color:#1e40af;margin-top:4px}
+[data-theme=dark] .dim-pill{background:rgba(30,64,175,.2);color:#93c5fd}
+.cat-tag{font-size:11px;color:#94a3b8}
+.bal-name{font-weight:500;color:#334155}
+[data-theme=dark] .bal-name{color:#cbd5e1}
+.bal-val{text-align:right;font-variant-numeric:tabular-nums;color:#334155}
+[data-theme=dark] .bal-val{color:#cbd5e1}
+.action-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}
+.bal-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:640px){.bal-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<div class="toast-wrap" id="toasts"></div>
+<div class="pdf-node" id="pdf-report"></div>
+
+<script>
+// ── Utilidades ─────────────────────────────────────────────────
+const euro = v => new Intl.NumberFormat('es-ES',{style:'currency',currency:'EUR'}).format(Number(v)||0)
+
+const DIM_LABEL = {micro:'Microempresa (≤4 empleados)',pequena:'Pequeña empresa (5-49)',mediana:'Mediana empresa (50-249)',grande:'Gran empresa (≥250)'}
+
+function resolveDim({mode,nempleados,volumen,rango}){
+  if(mode==='rango') return rango
+  if(mode==='volumen'){
+    const v=Number(volumen)
+    if(v<100000) return 'micro'
+    if(v<2000000) return 'pequena'
+    if(v<50000000) return 'mediana'
+    return 'grande'
+  }
+  const n=Number(nempleados)
+  if(n<=4) return 'micro'
+  if(n<=49) return 'pequena'
+  if(n<=249) return 'mediana'
+  return 'grande'
+}
+
+const DEFAULT_ITEMS = {
+  micro:[
+    {nombre:'Inmovilizado material',importe:8000,categoria:'Activo No Corriente'},
+    {nombre:'Clientes',importe:3000,categoria:'Activo Corriente'},
+    {nombre:'Bancos',importe:4000,categoria:'Activo Corriente'},
+    {nombre:'Capital social',importe:3000,categoria:'Patrimonio Neto'},
+    {nombre:'Resultado del ejercicio',importe:5000,categoria:'Patrimonio Neto'},
+    {nombre:'Proveedores',importe:7000,categoria:'Pasivo Corriente'}
+  ],
+  pequena:[
+    {nombre:'Inmovilizado material',importe:50000,categoria:'Activo No Corriente'},
+    {nombre:'Existencias',importe:15000,categoria:'Activo Corriente'},
+    {nombre:'Clientes',importe:12000,categoria:'Activo Corriente'},
+    {nombre:'Bancos',importe:8000,categoria:'Activo Corriente'},
+    {nombre:'Capital social',importe:30000,categoria:'Patrimonio Neto'},
+    {nombre:'Resultado del ejercicio',importe:15000,categoria:'Patrimonio Neto'},
+    {nombre:'Deudas a largo plazo',importe:25000,categoria:'Pasivo No Corriente'},
+    {nombre:'Proveedores',importe:10000,categoria:'Pasivo Corriente'},
+    {nombre:'Deudas a corto plazo',importe:5000,categoria:'Pasivo Corriente'}
+  ],
+  mediana:[
+    {nombre:'Inmovilizado material',importe:250000,categoria:'Activo No Corriente'},
+    {nombre:'Existencias',importe:80000,categoria:'Activo Corriente'},
+    {nombre:'Clientes',importe:60000,categoria:'Activo Corriente'},
+    {nombre:'Bancos',importe:30000,categoria:'Activo Corriente'},
+    {nombre:'Capital social',importe:120000,categoria:'Patrimonio Neto'},
+    {nombre:'Reservas',importe:80000,categoria:'Patrimonio Neto'},
+    {nombre:'Resultado del ejercicio',importe:40000,categoria:'Patrimonio Neto'},
+    {nombre:'Deudas a largo plazo',importe:150000,categoria:'Pasivo No Corriente'},
+    {nombre:'Proveedores',importe:60000,categoria:'Pasivo Corriente'},
+    {nombre:'Deudas a corto plazo',importe:20000,categoria:'Pasivo Corriente'}
+  ],
+  grande:[
+    {nombre:'Inmovilizado material',importe:1200000,categoria:'Activo No Corriente'},
+    {nombre:'Fondo de comercio',importe:200000,categoria:'Activo No Corriente'},
+    {nombre:'Existencias',importe:400000,categoria:'Activo Corriente'},
+    {nombre:'Clientes',importe:300000,categoria:'Activo Corriente'},
+    {nombre:'Bancos',importe:150000,categoria:'Activo Corriente'},
+    {nombre:'Capital social',importe:600000,categoria:'Patrimonio Neto'},
+    {nombre:'Reservas',importe:400000,categoria:'Patrimonio Neto'},
+    {nombre:'Resultado del ejercicio',importe:200000,categoria:'Patrimonio Neto'},
+    {nombre:'Obligaciones y bonos',importe:600000,categoria:'Pasivo No Corriente'},
+    {nombre:'Deudas a largo plazo',importe:400000,categoria:'Pasivo No Corriente'},
+    {nombre:'Proveedores',importe:250000,categoria:'Pasivo Corriente'},
+    {nombre:'Deudas a corto plazo',importe:100000,categoria:'Pasivo Corriente'}
+  ]
+}
+
+const CATEGORIAS = ['Activo No Corriente','Activo Corriente','Patrimonio Neto','Pasivo No Corriente','Pasivo Corriente']
+const CAPITAL_MIN = {sl:3000,sa:60000,coop:1,autonomo:0,sl_unipersonal:3000}
+
+// ── Estado global ──────────────────────────────────────────────
+let STATE = {
+  step: 1,
+  company: {nombre:'',razonSocial:'',socios:1,capital:3000,forma:'sl'},
+  dimension: {mode:'nempleados',nempleados:8,volumen:480000,rango:'pequena',resolved:'pequena'},
+  context: {sector:'Comercio',geografico:'Local',finalidad:'Lucrativa',propiedad:'Privada'},
+  balance: {useDetailed:false,items:[...DEFAULT_ITEMS.pequena.map(i=>({...i}))]},
+  result: null,
+  story: ''
+}
+
+function setState(patch){ Object.assign(STATE, patch); render() }
+
+// ── Toast ──────────────────────────────────────────────────────
+function showToast(msg, type='info', ms=4500){
+  const d=document.createElement('div')
+  d.className=`toast toast-${type}`
+  d.textContent=msg
+  document.getElementById('toasts').appendChild(d)
+  setTimeout(()=>d.remove(), ms)
+}
+
+// ── Validación contable ────────────────────────────────────────
+function calcBalance(items){
+  const cloned = items.map(i=>({...i, importe:Number(i.importe)}))
+  for(const it of cloned){
+    if(!it.nombre?.trim()) throw new Error('Todas las partidas deben tener nombre.')
+    if(Number.isNaN(it.importe)) throw new Error(`Importe inválido en "${it.nombre}".`)
+  }
+  const sum = cat => cloned.filter(i=>i.categoria===cat).reduce((a,b)=>a+b.importe,0)
+  const anc=sum('Activo No Corriente'), ac=sum('Activo Corriente')
+  const pnc=sum('Pasivo No Corriente'), pc=sum('Pasivo Corriente'), pn=sum('Patrimonio Neto')
+  const totalA=anc+ac, totalF=pnc+pc+pn
+  const diff=Number((totalA-totalF).toFixed(2))
+  let adjusted=false, adjustmentMessage=''
+  if(diff!==0){
+    let t=cloned.find(i=>i.nombre.toLowerCase().includes('resultado')&&i.categoria==='Patrimonio Neto')
+    if(!t) t=cloned.find(i=>i.nombre.toLowerCase().includes('reserva')&&i.categoria==='Patrimonio Neto')
+    if(!t){ t={nombre:'Resultado del ejercicio',importe:0,categoria:'Patrimonio Neto'}; cloned.push(t) }
+    t.importe=Number((t.importe+diff).toFixed(2))
+    adjusted=true
+    adjustmentMessage=`Ajuste automático de ${euro(diff)} en "${t.nombre}" para cuadrar el balance.`
+  }
+  const newPn=cloned.filter(i=>i.categoria==='Patrimonio Neto').reduce((a,b)=>a+b.importe,0)
+  const newAnc=cloned.filter(i=>i.categoria==='Activo No Corriente').reduce((a,b)=>a+b.importe,0)
+  const newAc=cloned.filter(i=>i.categoria==='Activo Corriente').reduce((a,b)=>a+b.importe,0)
+  const newPnc=cloned.filter(i=>i.categoria==='Pasivo No Corriente').reduce((a,b)=>a+b.importe,0)
+  const newPc=cloned.filter(i=>i.categoria==='Pasivo Corriente').reduce((a,b)=>a+b.importe,0)
+  return {
+    adjusted, adjustmentMessage, items:cloned,
+    grouped:{
+      activo:cloned.filter(i=>i.categoria==='Activo No Corriente'||i.categoria==='Activo Corriente'),
+      financiacion:cloned.filter(i=>i.categoria==='Patrimonio Neto'||i.categoria==='Pasivo No Corriente'||i.categoria==='Pasivo Corriente')
+    },
+    totals:{ totalActivo:newAnc+newAc, totalFinanciacion:newPnc+newPc+newPn, pn:newPn }
+  }
+}
+
+// ── Storytelling ───────────────────────────────────────────────
+const SECTOR_CTX={
+  'Tecnología':'el sector tecnológico, caracterizado por alta intensidad innovadora y ciclos de producto cortos',
+  'Comercio':'el sector comercial, donde la gestión de existencias y fidelización del cliente son factores críticos',
+  'Industria':'el sector industrial, con elevadas necesidades de inmovilizado y economías de escala',
+  'Servicios':'el sector servicios, donde el capital humano y la reputación son los principales activos intangibles',
+  'Hosteleria':'el sector hostelero, muy sensible al ciclo económico y patrones de demanda estacional',
+  'Construcción':'el sector constructor, intensivo en capital y con elevado apalancamiento en fases expansivas',
+  'Salud':'el sector sanitario, regulado y con fuertes barreras de entrada de carácter institucional'
+}
+const GEO_CTX={
+  'Local':'un ámbito local, construyendo ventajas basadas en proximidad y conocimiento del cliente',
+  'Regional':'un ámbito regional, aprovechando economías de alcance dentro de un mercado cohesionado',
+  'Nacional':'todo el territorio nacional, con mayor exposición a rivales sectoriales',
+  'Internacional':'mercados internacionales, con riesgo de tipo de cambio a cambio de mayor potencial de crecimiento',
+  'Global':'escala global, con cadenas de valor distribuidas y gestión multicultural'
+}
+const FORMA_CTX={
+  'sl':'Sociedad de Responsabilidad Limitada (SRL), con responsabilidad patrimonial circunscrita al capital aportado',
+  'sa':'Sociedad Anónima (SA), con acceso potencial a mercados de capitales',
+  'coop':'Sociedad Cooperativa, orientada a crear valor para sus socios trabajadores',
+  'autonomo':'empresario individual (autónomo), con máxima agilidad operativa',
+  'sl_unipersonal':'Sociedad Limitada Unipersonal, que combina la responsabilidad limitada con la gestión individual'
+}
+
+function generateStory(){
+  const {company,dimension,context}=STATE
+  const {nombre,razonSocial,socios,capital,forma}=company
+  const {nempleados,resolved}=dimension
+  const {sector,geografico,finalidad,propiedad}=context
+  const dimLabel=DIM_LABEL[resolved]||resolved
+  const sectorCtx=SECTOR_CTX[sector]||`el sector de ${sector}`
+  const geoCtx=GEO_CTX[geografico]||`un ámbito ${geografico}`
+  const formaCtx=FORMA_CTX[forma]||`una ${forma}`
+  const ansoff=resolved==='micro'||resolved==='pequena'
+    ?'Su tamaño le invita a explorar estrategias de penetración de mercado (Ansoff I), consolidando su cuota antes de diversificarse.'
+    :resolved==='mediana'
+      ?'Con su dimensión actual, puede evaluar estrategias de desarrollo de mercado o producto (Ansoff II y III).'
+      :'Su envergadura permite considerar estrategias de diversificación (Ansoff IV), combinando nuevos productos con nuevos mercados.'
+  const porter=`Desde las 5 fuerzas de Porter, ${sector==='Tecnología'?'la amenaza de nuevos entrantes y la rivalidad son especialmente intensas dado el bajo coste de entrada':sector==='Industria'?'las barreras de entrada por capital confieren una posición defensiva sólida':'el poder de negociación de clientes y proveedores requiere atención prioritaria en la política comercial'}.`
+  const pestel=`En clave PESTEL, el entorno ${geografico==='Internacional'||geografico==='Global'?'internacional exige vigilancia de factores políticos, económicos (tipo de cambio) y tecnológicos':'local y nacional obliga a monitorizar el marco fiscal, la legislación laboral y las tendencias de digitalización'}.`
+  const rsc=finalidad==='Social'||finalidad==='Mixta'
+    ?'Su finalidad mixta la sitúa en la órbita de la Economía Social y Solidaria, integrando impacto social junto a la sostenibilidad financiera.'
+    :'La empresa puede fortalecer su reputación integrando criterios ESG (medioambiente, social, gobernanza) en su planificación estratégica.'
+  return `${nombre||'La empresa'}, constituida como ${formaCtx}, opera en ${sectorCtx} y desarrolla su actividad en ${geoCtx}.
+
+Con ${nempleados} empleados y dimensión "${dimLabel}", su estructura patrimonial refleja un modelo de propiedad ${propiedad.toLowerCase()} y finalidad ${finalidad.toLowerCase()}. El capital de sus ${socios} socio${socios==1?'':'s'} asciende a ${euro(capital)}, lo que evidencia ${capital<10000?'una estructura típica de proyecto en fase de validación':capital<100000?'una base moderada coherente con su fase de crecimiento':'una base sólida que refuerza su solvencia e inversión'}.
+
+${ansoff}
+
+${porter}
+
+${pestel}
+
+${rsc}
+
+En definitiva, ${nombre||razonSocial||'la empresa'} presenta un balance que debe interpretarse no solo como fotografía contable, sino como evidencia de sus decisiones de financiación, inversión y creación de valor a largo plazo.`
+}
+
+// ── PDF Export ─────────────────────────────────────────────────
+async function exportPdf(){
+  if(!STATE.story){ showToast('Primero genera la historia de la empresa.','warn'); return }
+  const {result,company,dimension,context,story}=STATE
+  if(!result){ return }
+  const node=document.getElementById('pdf-report')
+  const {grouped,totals}=result
+  node.innerHTML=`
+    <div style="border-bottom:2px solid #0f4c81;padding-bottom:16px;margin-bottom:20px">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h1 style="margin:0;color:#0f4c81;font-size:20px;font-weight:800">${company.nombre||'Informe Financiero'}</h1>
+          <p style="margin:4px 0 0;color:#5f6f87;font-size:13px">${company.razonSocial} · Balance de situación PGC</p>
+        </div>
+        <div style="text-align:right;color:#95a2b5;font-size:11px">
+          <div style="font-weight:700">Método DUPRE finanzas</div>
+          <div>${new Date().toLocaleDateString('es-ES',{year:'numeric',month:'long',day:'numeric'})}</div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:16px">
+        ${[['Empresa',company.nombre||'-'],['Dimensión',DIM_LABEL[dimension.resolved]],['Sector',context.sector],['Ámbito',context.geografico],['Forma',company.forma.toUpperCase()],['Socios',company.socios],['Capital',euro(company.capital)],['Finalidad',context.finalidad]].map(([k,v])=>`<div style="background:#f4f7fb;border-radius:8px;padding:8px"><div style="font-size:10px;color:#95a2b5;margin-bottom:3px">${k}</div><strong style="font-size:12px">${v}</strong></div>`).join('')}
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:28px">
+      ${['activo','financiacion'].map((side,si)=>{
+        const items=grouped[side]
+        const total=si===0?totals.totalActivo:totals.totalFinanciacion
+        const title=si===0?'ACTIVO':'PASIVO + PATRIMONIO NETO'
+        return `<div>
+          <div style="background:#0f4c81;color:white;padding:6px 10px;border-radius:6px;font-weight:700;margin-bottom:10px;font-size:11px">${title}</div>
+          <table style="width:100%;border-collapse:collapse;font-size:11px">
+            <tbody>${items.map(it=>`<tr style="border-bottom:1px solid #eef3f9"><td style="padding:5px 4px">${it.nombre}<br><span style="color:#95a2b5;font-size:10px">${it.categoria}</span></td><td style="text-align:right;padding:5px 4px;font-weight:600">${euro(it.importe)}</td></tr>`).join('')}</tbody>
+            <tfoot><tr style="border-top:2px solid #0f4c81"><td style="padding-top:8px;font-weight:800">Total ${si===0?'Activo':'PN + Pasivo'}</td><td style="text-align:right;padding-top:8px;font-weight:800;color:#0f4c81">${euro(total)}</td></tr></tfoot>
+          </table>
+        </div>`
+      }).join('')}
+    </div>
+    <div style="border-top:1px solid #d7e0ea;padding-top:18px">
+      <h3 style="color:#0f4c81;margin-bottom:10px;font-size:14px">Crónica de negocio</h3>
+      <p style="line-height:1.75;text-align:justify;color:#2d3a4a;white-space:pre-line;margin:0">${story}</p>
+    </div>`
+  node.style.display='block'
+  try{
+    showToast('Generando PDF, espera...','info')
+    // Usar html2canvas + jsPDF via CDN dinámico
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js')
+    await loadScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js')
+    const canvas=await html2canvas(node,{scale:2,useCORS:true,backgroundColor:'#ffffff'})
+    const {jsPDF}=window.jspdf
+    const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'})
+    const pw=pdf.internal.pageSize.getWidth(), ph=pdf.internal.pageSize.getHeight()
+    const ih=(canvas.height*pw)/canvas.width
+    let left=ih, pos=0
+    pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,pos,pw,ih)
+    left-=ph
+    while(left>0){ pos-=ph; pdf.addPage(); pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,pos,pw,ih); left-=ph }
+    pdf.save(`informe-balance-${(company.nombre||'empresa').replace(/\s+/g,'-').toLowerCase()}.pdf`)
+    showToast('PDF descargado correctamente.','success')
+  } catch(e){ showToast('Error al generar PDF: '+e.message,'error') }
+  finally{ node.style.display='none' }
+}
+
+function loadScript(src){
+  return new Promise((res,rej)=>{
+    if(document.querySelector(`script[src="${src}"]`)){ res(); return }
+    const s=document.createElement('script'); s.src=src; s.onload=res; s.onerror=rej
+    document.head.appendChild(s)
+  })
+}
+
+// ── Render principal ───────────────────────────────────────────
+function render(){
+  const app=document.getElementById('root')
+  app.innerHTML=`
+  <div class="container">
+    <!-- TopBar -->
+    <div class="topbar">
+      <div class="logo-wrap">
+        <svg width="40" height="40" viewBox="0 0 40 40" fill="none" aria-label="Logo DUPRE" role="img">
+          <rect width="40" height="40" rx="12" fill="#0f4c81"/>
+          <path d="M8 12h24M13 12l7-4 7 4M20 8v20M10 18l-3 8h6l-3-8Zm20 0-3 8h6l-3-8ZM7 28h26" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <div class="logo-title">Generador de Balance PGC</div>
+          <div class="logo-sub">Método DUPRE finanzas</div>
+        </div>
+      </div>
+      <button class="theme-btn" onclick="toggleTheme()" aria-label="Cambiar tema">◐</button>
+    </div>
+
+    <!-- Stepper -->
+    ${renderStepper()}
+
+    <!-- Paso activo -->
+    ${STATE.step===1?renderStep1():STATE.step===2?renderStep2():STATE.step===3?renderStep3():renderStep4()}
+
+    <!-- Resultados -->
+    ${STATE.result ? renderResults() : ''}
+  </div>`
+}
+
+function renderStepper(){
+  const steps=['Datos','Dimensión','Contexto','Balance']
+  return `<div class="stepper">${steps.map((label,i)=>{
+    const n=i+1, done=n<STATE.step, active=n===STATE.step
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+      <div class="step-dot ${done?'step-done':active?'step-active':'step-pending'}">${done?'✓':n}</div>
+      <div class="step-label ${active?'step-label-active':'step-label-other'}">${label}</div>
+    </div>${n<steps.length?`<div class="step-line ${done?'step-line-done':'step-line-pending'}"></div>`:''}`
+  }).join('')}</div>`
+}
+
+function renderStep1(){
+  const {company}=STATE
+  const formas=[['sl','SRL'],['sa','SA'],['coop','Cooperativa'],['autonomo','Autónomo'],['sl_unipersonal','SL Unipersonal']]
+  return `<div class="card">
+    <div class="section-title">Datos generales</div>
+    <div class="section-sub">Información básica de la empresa</div>
+    <div class="grid2">
+      <div class="field"><label class="label">Nombre comercial</label><input class="input" value="${company.nombre}" oninput="upCompany('nombre',this.value)" placeholder="Ej. Comercial Mediterráneo"></div>
+      <div class="field"><label class="label">Razón social</label><input class="input" value="${company.razonSocial}" oninput="upCompany('razonSocial',this.value)" placeholder="Ej. Comercial Mediterráneo SL"></div>
+      <div class="field"><label class="label">Forma jurídica</label><select class="select" onchange="upForma(this.value)">${formas.map(([v,l])=>`<option value="${v}" ${company.forma===v?'selected':''}>${l}</option>`).join('')}</select></div>
+      <div class="field"><label class="label">Nº de socios</label><input type="number" min="1" class="input" value="${company.socios}" oninput="upCompany('socios',+this.value)"></div>
+      <div class="field"><label class="label">Capital aportado (€)</label><input type="number" min="0" step="100" class="input" value="${company.capital}" oninput="upCompany('capital',+this.value)"><div class="hint">Mínimo legal: ${(CAPITAL_MIN[company.forma]||0).toLocaleString('es-ES')} €</div></div>
+    </div>
+    <div class="nav-row"><span></span><button class="btn btn-primary" onclick="goStep(2)" ${!company.nombre.trim()?'disabled':''}>Siguiente →</button></div>
+  </div>`
+}
+
+function renderStep2(){
+  const {dimension}=STATE
+  const modes=[['nempleados','Por nº de empleados'],['volumen','Por volumen de negocio (€)'],['rango','Selección directa']]
+  const rangos=Object.entries(DIM_LABEL)
+  return `<div class="card">
+    <div class="section-title">Dimensión de la empresa</div>
+    <div class="section-sub">Define el tamaño de la empresa</div>
+    <div class="field"><label class="label">Método</label><select class="select" onchange="upDim('mode',this.value)">${modes.map(([v,l])=>`<option value="${v}" ${dimension.mode===v?'selected':''}>${l}</option>`).join('')}</select></div>
+    ${dimension.mode==='nempleados'?`<div class="field"><label class="label">Nº de empleados</label><input type="number" min="0" class="input" value="${dimension.nempleados}" oninput="upDim('nempleados',+this.value)"></div>`:''}
+    ${dimension.mode==='volumen'?`<div class="field"><label class="label">Volumen de negocio anual (€)</label><input type="number" min="0" step="10000" class="input" value="${dimension.volumen}" oninput="upDim('volumen',+this.value)"></div>`:''}
+    ${dimension.mode==='rango'?`<div class="field"><label class="label">Tamaño</label><select class="select" onchange="upDim('rango',this.value)">${rangos.map(([v,l])=>`<option value="${v}" ${dimension.rango===v?'selected':''}>${l}</option>`).join('')}</select></div>`:''}
+    <div class="dim-pill">Dimensión calculada: <strong>${DIM_LABEL[dimension.resolved]}</strong></div>
+    <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(1)">← Anterior</button><button class="btn btn-primary" onclick="goStep(3)">Siguiente →</button></div>
+  </div>`
+}
+
+function renderStep3(){
+  const {context}=STATE
+  const sectores=['Tecnología','Comercio','Industria','Servicios','Hosteleria','Agricultura','Construcción','Educación','Salud','Otro']
+  const geos=['Local','Regional','Nacional','Internacional','Global']
+  const finalidades=['Lucrativa','Social','Mixta','Sin ánimo de lucro']
+  const propiedades=['Privada','Pública','Mixta','Cooperativa']
+  return `<div class="card">
+    <div class="section-title">Contexto operativo</div>
+    <div class="section-sub">Características estratégicas y organizativas</div>
+    <div class="grid2">
+      <div class="field"><label class="label">Sector</label><select class="select" onchange="upCtx('sector',this.value)">${sectores.map(s=>`<option ${context.sector===s?'selected':''}>${s}</option>`).join('')}</select></div>
+      <div class="field"><label class="label">Ámbito geográfico</label><select class="select" onchange="upCtx('geografico',this.value)">${geos.map(g=>`<option ${context.geografico===g?'selected':''}>${g}</option>`).join('')}</select></div>
+      <div class="field"><label class="label">Finalidad</label><select class="select" onchange="upCtx('finalidad',this.value)">${finalidades.map(f=>`<option ${context.finalidad===f?'selected':''}>${f}</option>`).join('')}</select></div>
+      <div class="field"><label class="label">Propiedad del capital</label><select class="select" onchange="upCtx('propiedad',this.value)">${propiedades.map(p=>`<option ${context.propiedad===p?'selected':''}>${p}</option>`).join('')}</select></div>
+    </div>
+    <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(2)">← Anterior</button><button class="btn btn-primary" onclick="goStep(4)">Siguiente →</button></div>
+  </div>`
+}
+
+function renderStep4(){
+  const {balance}=STATE
+  const items=balance.items
+  return `<div class="card">
+    <div class="section-title">Masas patrimoniales</div>
+    <div class="section-sub">Define las partidas del balance</div>
+    <div class="switch-wrap">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:14px">¿Desea especificar importes detallados?</div>
+        <div style="font-size:12px;color:#94a3b8;margin-top:2px">Si no, se usan valores de plantilla según la dimensión.</div>
+      </div>
+      <button class="switch-btn ${balance.useDetailed?'on switch-on':'off switch-off'}" onclick="toggleDetailed()" role="switch" aria-checked="${balance.useDetailed}">
+        <span class="switch-thumb"></span>
+      </button>
+    </div>
+    ${balance.useDetailed?`
+    <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px">
+      <div class="row-items" style="font-size:12px;color:#94a3b8;font-weight:500">
+        <div>Partida</div><div>Importe (€)</div>
+        <div class="cat-col">Categoría</div><div class="del-col"></div>
+      </div>
+      ${items.map((it,i)=>`
+      <div class="row-items">
+        <input class="input" value="${it.nombre}" placeholder="Nombre partida" oninput="upItem(${i},'nombre',this.value)">
+        <input type="number" class="input" value="${it.importe}" oninput="upItem(${i},'importe',+this.value)">
+        <select class="select cat-col" onchange="upItem(${i},'categoria',this.value)">${CATEGORIAS.map(c=>`<option ${it.categoria===c?'selected':''}>${c}</option>`).join('')}</select>
+        <button class="del-col" style="min-width:40px;height:44px;border-radius:14px;color:#f87171;font-size:20px" onclick="delItem(${i})" aria-label="Eliminar">×</button>
+      </div>`).join('')}
+      <button class="btn btn-ghost" style="align-self:flex-start;margin-top:4px" onclick="addItem()">+ Añadir partida</button>
+    </div>`:''}
+    <div class="nav-row"><button class="btn btn-ghost" onclick="goStep(3)">← Anterior</button><button class="btn btn-primary" onclick="calcular()">Calcular balance →</button></div>
+  </div>`
+}
+
+function renderResults(){
+  const {result,story}=STATE
+  const {grouped,totals,adjusted,adjustmentMessage}=result
+  return `
+  <div class="card" id="balance-results" style="margin-top:16px">
+    <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+      <div>
+        <div class="section-title">Balance de situación cuadrado</div>
+        <span class="badge ${adjusted?'badge-warn':'badge-ok'}">${adjusted?'⚠ Cuadrado con ajuste automático':'✓ Cuadrado sin ajustes'}</span>
+      </div>
+    </div>
+    <div class="kpi-grid">
+      ${[['Activo total',totals.totalActivo],['PN + Pasivo',totals.totalFinanciacion],['Patrimonio neto',totals.pn]].map(([l,v])=>`<div class="kpi"><div class="kpi-label">${l}</div><div class="kpi-val">${euro(v)}</div></div>`).join('')}
+    </div>
+    <div class="bal-grid">
+      ${['activo','financiacion'].map((side,si)=>{
+        const items=grouped[side]
+        const total=si===0?totals.totalActivo:totals.totalFinanciacion
+        const title=si===0?'Activo':'Pasivo + Patrimonio Neto'
+        return `<div>
+          <div style="font-size:12px;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">${title}</div>
+          <table class="bal-table">
+            <thead><tr><th>Partida</th><th style="text-align:right">Importe</th></tr></thead>
+            <tbody>${items.map(it=>`<tr><td><div class="bal-name">${it.nombre}</div><div class="cat-tag">${it.categoria}</div></td><td class="bal-val">${euro(it.importe)}</td></tr>`).join('')}</tbody>
+            <tfoot><tr class="bal-total"><td>Total ${title.split(' ')[0]}</td><td class="bal-val bal-total-val">${euro(total)}</td></tr></tfoot>
+          </table>
+        </div>`
+      }).join('')}
+    </div>
+    <div class="action-row">
+      <button class="btn btn-ghost" onclick="genStory()">📖 Descubrir la historia de la empresa</button>
+      ${story?`<button class="btn btn-primary" onclick="exportPdf()">⬇ Descargar Informe PDF</button>`:''}
+    </div>
+  </div>
+  ${story?`
+  <div class="card" id="story-section" style="margin-top:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px">
+      <div class="section-title">Crónica de negocio</div>
+      <button class="btn btn-primary" onclick="exportPdf()">⬇ Descargar Informe PDF</button>
+    </div>
+    <div class="story-text">${story}</div>
+  </div>`:''}`
+}
+
+// ── Handlers globales ──────────────────────────────────────────
+window.toggleTheme=()=>{
+  const h=document.documentElement
+  h.setAttribute('data-theme',h.getAttribute('data-theme')==='dark'?'light':'dark')
+}
+window.goStep=(n)=>{ STATE.step=n; render() }
+window.upCompany=(k,v)=>{ STATE.company[k]=v; if(k==='forma') STATE.company.capital=CAPITAL_MIN[v]||0; render() }
+window.upDim=(k,v)=>{ STATE.dimension[k]=v; STATE.dimension.resolved=resolveDim(STATE.dimension); render() }
+window.upCtx=(k,v)=>{ STATE.context[k]=v; render() }
+window.toggleDetailed=()=>{
+  STATE.balance.useDetailed=!STATE.balance.useDetailed
+  if(!STATE.balance.useDetailed) STATE.balance.items=DEFAULT_ITEMS[STATE.dimension.resolved].map(i=>({...i}))
+  STATE.result=null; STATE.story=''; render()
+}
+window.addItem=()=>{ STATE.balance.items.push({nombre:'',importe:0,categoria:'Activo Corriente'}); render() }
+window.delItem=(i)=>{ STATE.balance.items.splice(i,1); render() }
+window.upItem=(i,k,v)=>{ STATE.balance.items[i][k]=v }
+window.calcular=()=>{
+  try{
+    const res=calcBalance(STATE.balance.items)
+    STATE.result=res; STATE.story=''
+    if(res.adjusted){ showToast('⚠ '+res.adjustmentMessage,'warn',7000) }
+    else { showToast('✔ Balance cuadrado correctamente.','success') }
+    render()
+    setTimeout(()=>document.getElementById('balance-results')?.scrollIntoView({behavior:'smooth'}),150)
+  } catch(e){ showToast(e.message,'error',6000) }
+}
+window.genStory=()=>{
+  STATE.story=generateStory()
+  showToast('Crónica de negocio generada.','success')
+  render()
+  setTimeout(()=>document.getElementById('story-section')?.scrollIntoView({behavior:'smooth'}),150)
+}
+window.exportPdf=exportPdf
+
+// Arranque
+render()
+</script>
+</body>
 </html>

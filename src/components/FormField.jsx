@@ -13,8 +13,17 @@ export default function FormField({ label, id, children, hint }) {
 export function Input({ id, value, onChange, type = 'text', placeholder, min, max, step }) {
   return (
     <input
-      id={id} type={type} value={value} onChange={onChange}
-      placeholder={placeholder} min={min} max={max} step={step}
+      id={id}
+      name={id}
+      type={type}
+      value={value}
+      onChange={onChange}
+      placeholder={placeholder}
+      min={min}
+      max={max}
+      step={step}
+      autoComplete="off"
+      spellCheck={false}
       className="h-11 px-4 rounded-[14px] border border-slate-200 dark:border-slate-700
         bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100
         placeholder:text-slate-300 dark:placeholder:text-slate-600
@@ -27,7 +36,10 @@ export function Input({ id, value, onChange, type = 'text', placeholder, min, ma
 export function Select({ id, value, onChange, children }) {
   return (
     <select
-      id={id} value={value} onChange={onChange}
+      id={id}
+      name={id}
+      value={value}
+      onChange={onChange}
       className="h-11 px-4 rounded-[14px] border border-slate-200 dark:border-slate-700
         bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100
         focus:outline-none focus:ring-2 focus:ring-brand-700 focus:border-transparent

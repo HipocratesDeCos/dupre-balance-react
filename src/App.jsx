@@ -39,11 +39,12 @@ function ThemeToggle() {
   )
 }
 
-const STEP_COMPONENTS = {
-  1: <StepGeneralData />,
-  2: <StepDimension />,
-  3: <StepContext />,
-  4: <StepBalance />
+function StepRenderer({ step }) {
+  if (step === 1) return <StepGeneralData />
+  if (step === 2) return <StepDimension />
+  if (step === 3) return <StepContext />
+  if (step === 4) return <StepBalance />
+  return null
 }
 
 export default function App() {
@@ -72,8 +73,8 @@ export default function App() {
           <ThemeToggle />
         </header>
         <StepperNav currentStep={currentStep} />
-        {STEP_COMPONENTS[currentStep]}
-        <BalanceResults />
+        <StepRenderer step={currentStep} />
+        {currentStep === 5 && <BalanceResults />}
       </div>
     </ToastProvider>
   )

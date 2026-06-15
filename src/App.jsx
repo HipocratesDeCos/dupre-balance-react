@@ -8,13 +8,22 @@ import StepContext from './pages/StepContext'
 import StepBalance from './pages/StepBalance'
 import BalanceResults from './pages/BalanceResults'
 
+// FUERA de App para que React no lo desmonte en cada render
+function StepRenderer({ step }) {
+  if (step === 1) return <StepGeneralData />
+  if (step === 2) return <StepDimension />
+  if (step === 3) return <StepContext />
+  if (step === 4) return <StepBalance />
+  return null
+}
+
 function AppLogo() {
   return (
     <svg width="40" height="40" viewBox="0 0 40 40" fill="none"
       aria-label="Logo DUPRE Balance" role="img">
-      <rect width="40" height="40" rx="12" fill="#0f4c81"/>
+      <rect width="40" height="40" rx="12" fill="#0f4c81" />
       <path d="M8 12h24M13 12l7-4 7 4M20 8v20M10 18l-3 8h6l-3-8Zm20 0-3 8h6l-3-8ZM7 28h26"
-        stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   )
 }
@@ -37,14 +46,6 @@ function ThemeToggle() {
       ◐
     </button>
   )
-}
-
-function StepRenderer({ step }) {
-  if (step === 1) return <StepGeneralData />
-  if (step === 2) return <StepDimension />
-  if (step === 3) return <StepContext />
-  if (step === 4) return <StepBalance />
-  return null
 }
 
 export default function App() {
